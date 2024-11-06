@@ -47,8 +47,8 @@ def make_three_shot_verbalizer(df:Dataset) -> str:
 
     # append examples
     first_three_rows = df[:3]
-    for row in first_three_rows:
-        example_str = f"[premise]: {row['premise']} | [hypothesis]: {row['hypothesis']} | [label]: {row['label']} \n\n"
+    for i in range(len(first_three_rows)):
+        example_str = f"[premise]: {first_three_rows['premise'][i]} | [hypothesis]: {first_three_rows['hypothesis'][i]} | [label]: {first_three_rows['label'][i]} \n\n"
         verbalizer += example_str
 
     # labels = [0,1,2]
