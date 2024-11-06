@@ -34,7 +34,7 @@ def make_verbalizer(dev_ds:Dataset) -> str:
 
 def make_prompt(verbalizer: str, premise: str, hypothesis:str) -> str:
     """Given a verbalizer, a premise, and a hypothesis, return the prompt."""
-    return f'{verbalizer}. Example: \n \n [premise]: {premise} \n\n [hypothesis]: {hypothesis} \n\n [label]: [0 | 1 | 2]?. '
+    return f'{verbalizer}. Example: \n \n [premise]: {premise} \n\n [hypothesis]: {hypothesis} \n\n What is the [label]?. '
 
 def predict_labels(prompts: list[str]):
     """Should return a list of integer predictions (0, 1 or 2), one per prompt."""
@@ -80,6 +80,7 @@ if __name__ == "__main__":
       prompt = make_prompt(verbalizer, ex["premise"], ex["hypothesis"])
       prompts.append(prompt)
       true_labels.append(ex["label"])
+      break
 
     #print(f'prompts: {prompts}')
 
