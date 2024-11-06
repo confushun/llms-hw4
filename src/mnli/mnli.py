@@ -82,7 +82,6 @@ if __name__ == "__main__":
       prompt = make_prompt(verbalizer, ex["premise"], ex["hypothesis"])
       prompts.append(prompt)
       true_labels.append(ex["label"])
-      break
 
     #print(f'prompts: {prompts}')
 
