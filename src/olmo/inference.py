@@ -89,12 +89,16 @@ def hit_vllm_model_and_generate_output(data: [str]) -> [str]:
         data = {
             "model": "allenai/OLMo-7B-Instruct-hf",
             "messages": [
-                {"role": "user", "content": message}
+                {"role": "user", "content": "hello!"}
             ]
         }
 
+        print(f'data: {data} \n\n')
+
         # Make the POST request
         response = requests.post(url, headers=headers, data=json.dumps(data))
+
+        print(f'response: {response} \n\n')
 
         # Check if the request was successful
         if response.status_code == 200:
@@ -108,6 +112,8 @@ def hit_vllm_model_and_generate_output(data: [str]) -> [str]:
             print(f"Failed to get response for content: '{message}'")
             print("Status Code:", response.status_code)
             print("Response:", response.text)
+
+        break
 
 
     return outputs
