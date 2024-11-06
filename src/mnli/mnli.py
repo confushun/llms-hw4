@@ -102,7 +102,7 @@ if __name__ == "__main__":
     true_labels = []
 
     # make input prompts
-    for ex in dev_ds:
+    for ex in test_ds:
       prompt = make_three_shot_prompt(verbalizer, ex["premise"], ex["hypothesis"])
       prompts.append(prompt)
       true_labels.append(ex["label"])
