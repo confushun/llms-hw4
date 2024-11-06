@@ -46,7 +46,8 @@ def make_three_shot_verbalizer(df:Dataset) -> str:
             'Here are some examples:')
 
     # append examples
-    for label in [0, 1, 2]:
+    labels = [0,1,2]
+    for label in labels:
         # Filter the DataFrame for each label
         row = df[df['label'] == label].iloc[0]  # Get the first row with each label
         if not row.empty:
