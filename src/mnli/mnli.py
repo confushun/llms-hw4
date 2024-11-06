@@ -45,7 +45,7 @@ def predict_labels(prompts: list[str]):
             results.append(int(label))
         except:
             print(f'{prompt} is not a valid label')
-            results.append(0)
+            results.append(-1)
 
     return results
 
