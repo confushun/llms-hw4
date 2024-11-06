@@ -74,7 +74,7 @@ def load_model_and_generate_output(data: [str]) -> [str]:
 
 def hit_vllm_model_and_generate_output(data: [str]) -> [str]:
     messages = convert_prompt_to_input(data)
-    print(f'messages: {messages}')
+    #print(f'messages: {messages}')
 
     # Define the server URL
     url = "http://localhost:8000/v1/chat/completions"
@@ -105,8 +105,10 @@ def hit_vllm_model_and_generate_output(data: [str]) -> [str]:
             result = response.json()  # Parse the JSON response
             #print(f'result: {result}')
             # Extract the 'content' value
+
             content = result['choices'][0]['message']['content']
-            print(f'content: {content}\n\n')
+            #print(f'content: {content}\n\n')
+
             outputs.append(content)  # Add the result to the outputs list
 
         else:
