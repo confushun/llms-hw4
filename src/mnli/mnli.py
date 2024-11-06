@@ -30,11 +30,11 @@ def make_verbalizer(dev_ds:Dataset) -> str:
     return ('Given below is a [premise] and [hypothesis]. '
             'If the [hypothesis] contradicts the [premise], the label is 2. If the [hypothesis] is implied by the [premise],'
             ' the label is 0. Otherwise, the label is 1. '
-            'Generate the label given a [hypothesis] and [premise] below. ')
+            'Generate the numerical value of the label, given a [hypothesis] and [premise] below. ')
 
 def make_prompt(verbalizer: str, premise: str, hypothesis:str) -> str:
     """Given a verbalizer, a premise, and a hypothesis, return the prompt."""
-    return f'{verbalizer}. \n \n premise: {premise} \n\n hypothesis: {hypothesis} \n\n What is the label? Only generate the label: [0 | 1 | 2]. '
+    return f'{verbalizer}. \n \n premise: {premise} \n\n hypothesis: {hypothesis} \n\n label: [0 | 1 | 2]. '
 
 def predict_labels(prompts: list[str]):
     """Should return a list of integer predictions (0, 1 or 2), one per prompt."""
