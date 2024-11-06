@@ -29,7 +29,7 @@ def make_verbalizer(dev_ds:Dataset) -> str:
 
     return ('Given below is a premise and hypothesis. Classify the label of the hypothesis with respect to the premise. '
             'If the hypothesis contradicts the premise, output the label as 2. If the hypothesis is implied by the premise,'
-            ' output the label as 0. If it neither contradicts nor is implied, output the label as 1. Output a single number as the label only.')
+            ' output the label as 0. If it neither contradicts nor is implied, output the label as 1. ONLY generate a single number as the output, do not give me any explanation.')
 
 def make_prompt(verbalizer: str, premise: str, hypothesis:str) -> str:
     """Given a verbalizer, a premise, and a hypothesis, return the prompt."""
