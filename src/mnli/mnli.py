@@ -34,7 +34,7 @@ def make_verbalizer(dev_ds:Dataset) -> str:
 
 def make_prompt(verbalizer: str, premise: str, hypothesis:str) -> str:
     """Given a verbalizer, a premise, and a hypothesis, return the prompt."""
-    return f'{verbalizer}. \n \n premise: {premise} \n\n hypothesis: {hypothesis} \n\n What is the label? Only give me the number. '
+    return f'{verbalizer}. \n \n premise: {premise} \n\n hypothesis: {hypothesis} \n\n What is the label? Only generate the label: [0 | 1 | 2]. '
 
 def predict_labels(prompts: list[str]):
     """Should return a list of integer predictions (0, 1 or 2), one per prompt."""
