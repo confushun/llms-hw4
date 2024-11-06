@@ -27,14 +27,14 @@ def load_mnli_test() -> Dataset:
 def make_verbalizer(dev_ds:Dataset) -> str:
     """Should return a verbalizer string. You may choose to use examples from the dev set in the verbalizer."""
 
-    return ('Given below is a [premise] and [hypothesis]. '
-            'If the [hypothesis] contradicts the [premise], the label is 2. If the [hypothesis] is implied by the [premise],'
-            ' the label is 0. Otherwise, the label is 1. '
-            'Generate the numerical value of the label, given a [hypothesis] and [premise] below. ')
+    return ('In the following statements, decide the relationship between the [premise] and [hypothesis]. '
+            'If the [hypothesis] is definitely true based on the [premise], the [label] is 0 (neutral).'
+            'If the [hypothesis] is definitely false based on the [premise], the [label] is 2 (contradiction).'
+            'If the [hypothesis] is possible but not certain based on the [premise], the [label] is 1 (neutral).')
 
 def make_prompt(verbalizer: str, premise: str, hypothesis:str) -> str:
     """Given a verbalizer, a premise, and a hypothesis, return the prompt."""
-    return f'{verbalizer}. \n \n premise: {premise} \n\n hypothesis: {hypothesis} \n\n label: [0 | 1 | 2]. '
+    return f'{verbalizer}. Example: \n \n [premise]: {premise} \n\n [hypothesis]: {hypothesis} \n\n [label]: [0 | 1 | 2]?. '
 
 def predict_labels(prompts: list[str]):
     """Should return a list of integer predictions (0, 1 or 2), one per prompt."""
