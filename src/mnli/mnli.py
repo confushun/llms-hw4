@@ -42,7 +42,7 @@ def make_three_shot_verbalizer(df:Dataset) -> str:
     verbalizer =  ('In the following statements, decide the relationship between the [premise] and [hypothesis]. '
             'If the [hypothesis] is definitely true based on the [premise], the [label] is 0 (neutral).'
             'If the [hypothesis] is definitely false based on the [premise], the [label] is 2 (contradiction).'
-            'If the [hypothesis] is possible but not certain based on the [premise], the [label] is 1 (neutral).'
+            'If the [hypothesis] is possible but not certain based on the [premise] or you are insure, the [label] is 1 (neutral).'
             'Here are some examples:')
 
     # append examples
