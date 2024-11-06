@@ -6,7 +6,7 @@ from datasets import load_dataset
 import os
 from dotenv import load_dotenv
 from typing import List, Tuple, Dict, Union, Any, Optional
-
+import random
 
 load_dotenv()
 
@@ -33,14 +33,15 @@ def read_data(seed: int, train_size: int, test_size: int) -> Tuple[List[str], Li
     # Get training and testing datasets from `train` and `validation` splits
     # Step 1: shuffle with seed
     # Step 2: select first train/test size data
-    train_data = ...
-    test_data = ...
+    random.seed(seed)
+    train_data = dataset['train'].shuffle(seed=seed).select(range(train_size))
+    test_data = dataset['validation'].shuffle(seed=seed).select(range(test_size))
 
     # Extract sentences and labels
-    train_sentences = ...
-    train_labels = ...
-    test_sentences = ...
-    test_labels = ...
+    train_sentences = [entry['sentence'] for entry in train_data]
+    train_labels = [entry['label'] for entry in train_data]
+    test_sentences = [entry['sentence'] for entry in test_data]
+    test_labels = [entry['label'] for entry in test_data]
 
     return train_sentences, train_labels, test_sentences, test_labels
 
@@ -94,8 +95,8 @@ def get_responses(prompts: List[str], echo: bool = False) -> List[Any]:
 
     # Set OpenAI according to the instruction file in README
     client = openai.OpenAI(
-        api_key=...,  # please use .env file to store your key
-        base_url=...,
+        api_key= os.getenv("LITELLM_API_KEY"),  # please use .env file to store your key
+        base_url="https://cmu.litellm.ai",
     )
     # Get responses
     responses = []
@@ -144,40 +145,71 @@ def get_label_probs(
 
     # Initial probabilities from model responses
     for i, response in enumerate(tqdm(responses, desc="Get initial prob")):
-        top_logprobs = ...
-        label_probs = ...
+        top_logprobs = response.logprobs.top_logprobs[0]
+        label_probs = np.zeros(num_labels)
 
         for j, label in label_dict.items():
             if a_prefix[-1] == " ":
                 label = " " + label  # add space to match the format
 
             if label in top_logprobs:
-                label_probs[j] += ...
+                label_probs[j] = np.exp(top_logprobs[label])
             else:
                 # add to missing positions
-                ...
+                all_missing_positions.append((i, j))
 
         all_label_probs.append(label_probs)
+
     all_label_probs = np.array(all_label_probs)
 
     # Fill in missing positions
-    all_additional_prompts = []
-    for i, j in all_missing_positions:
-        prompt = ...
+    # all_additional_prompts = []
 
-        if a_prefix[-1] == " ":
-            prompt += " " + label
 
-        all_additional_prompts.append(prompt)
+    # for i, j in all_missing_positions:
+    #     prompt = create_prompt(q_prefix, a_prefix, few_shot_sentences, few_shot_labels)
+    #
+    #     if a_prefix[-1] == " ":
+    #         prompt += " " + label
+    #
+    #     all_additional_prompts.append(prompt)
 
+    all_additional_prompts = [
+        create_prompt(q_prefix, a_prefix, few_shot_sentences, few_shot_labels, test_sentences[i]) + (
+            " " + label_dict[j] if a_prefix[-1] == " " else label_dict[j]) for i, j in all_missing_positions]
     additional_responses = get_responses(all_additional_prompts, echo=True)
 
     for idx, (i, j) in enumerate(all_missing_positions):
-        prob = ...
+        label = label_dict[j]
+        if a_prefix[-1] == " ":
+            label = " " + label  # add space to match the format
+
+        # Get the last log probability for the appended label from token_logprobs[-1]
+        prob = np.exp(additional_responses[idx].logprobs.token_logprobs[-1])
+
+        #prob = np.exp(additional_responses[idx].logprobs.top_logprobs[0][label])
         all_label_probs[i][j] = prob
 
     return all_label_probs  # not normalized
 
+def find_first_non_null_value(dict_list, key):
+    """
+    Traverse a list of dictionaries to find the first non-null value for a given key.
+
+    Args:
+        dict_list (list of dict): List of dictionaries to search.
+        key (str): The key to look for in each dictionary.
+
+    Returns:
+        The first non-null value associated with the key, or None if not found.
+    """
+    for d in dict_list:
+        if d is None:
+            continue
+
+        if key in d and d[key] is not None:
+            return d[key]
+    return None  # Return None if no non-null value is found
 
 def calibrate(
     content_free_input: str, 
@@ -203,7 +235,7 @@ def calibrate(
     label_dict = {0: "Negative", 1: "Positive"}
     num_labels = len(label_dict)
 
-    prompt = ...
+    prompt = create_prompt(q_prefix, a_prefix, few_shot_sentences, few_shot_labels, content_free_input)
     p_y = [0] * num_labels
 
     for i, answer in label_dict.items():
@@ -213,9 +245,12 @@ def calibrate(
             key = answer
 
         response = get_responses(prompts=[prompt+key], echo=True)[0]
-        p_y[i] = ...
+        val = find_first_non_null_value(response.logprobs.top_logprobs, key)
+        if val is None:
+            val=0
+        p_y[i] = np.exp(val)
 
-    p_y = ...
+    p_y /= np.sum(p_y)  # Normalize to get probabilities
 
     return p_y
 
@@ -234,18 +269,20 @@ def eval_accuracy(all_label_probs: np.ndarray, test_labels: List[int], p_cf: Opt
     """
 
     # We use diagonal matrix here as the paper mentions it's better than the identity matrix for classification
-    num_labels = ...
+    num_labels = all_label_probs.shape[1]
 
     if p_cf is None:
-        W = ...
-        b = ...
+        W = np.eye(num_labels)
+        b = np.zeros(num_labels)
     else:
-        W = ...
-        b = ...
+        W = np.diag(1 / p_cf)
+        b = np.zeros_like(p_cf)
 
     corrects = []
     for prob, label in zip(all_label_probs, test_labels):
-        ...
+        calibrated_prob = np.dot(W, prob) + b
+        prediction = np.argmax(calibrated_prob)
+        corrects.append(prediction == label)
 
     accuracy = np.mean(corrects)
     return accuracy
