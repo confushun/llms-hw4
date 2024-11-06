@@ -93,12 +93,12 @@ def hit_vllm_model_and_generate_output(data: []) -> []:
             ]
         }
 
-       #print(f'data: {data} \n\n')
 
         # Make the POST request
         response = requests.post(url, headers=headers, data=json.dumps(data))
 
         #print(f'response: {response} \n\n')
+        print(f'data: {data} \n\n')
 
         # Check if the request was successful
         if response.status_code == 200:

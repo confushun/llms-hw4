@@ -49,13 +49,15 @@ def make_three_shot_verbalizer(df:Dataset) -> str:
     labels = [0,1,2]
     for label in labels:
         # Filter the DataFrame for each label
-        filtered_df= df.filter(lambda x: x['label'] == labels)
+        filtered_df= df.filter(lambda x: x['label'] == label)
         if len(filtered_df) > 0:
             row = filtered_df[0]
             print("First row:", row)
             # Create the string for this example
             example_str = f"[premise]: {row['premise']} | [hypothesis]: {row['hypothesis']} | [label]: {row['label']} \n\n"
             verbalizer+= example_str
+
+    return verbalizer
 
 def make_three_shot_prompt(verbalizer: str, premise: str, hypothesis:str) -> str:
     """Given a verbalizer, a premise, and a hypothesis, return the prompt."""
