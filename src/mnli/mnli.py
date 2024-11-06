@@ -46,22 +46,27 @@ def make_three_shot_verbalizer(df:Dataset) -> str:
             'Here are some examples:')
 
     # append examples
-    labels = [0,1,2]
-    for label in labels:
-        # Filter the DataFrame for each label
-        filtered_df= df.filter(lambda x: x['label'] == label)
-        if len(filtered_df) > 0:
-            row = filtered_df[0]
-            print("First row:", row)
-            # Create the string for this example
-            example_str = f"[premise]: {row['premise']} | [hypothesis]: {row['hypothesis']} | [label]: {row['label']} \n\n"
-            verbalizer+= example_str
+    first_three_rows = df[:3]
+    for row in first_three_rows.itertuples():
+        example_str = f"[premise]: {row['premise']} | [hypothesis]: {row['hypothesis']} | [label]: {row['label']} \n\n"
+        verbalizer += example_str
+
+    # labels = [0,1,2]
+    # for label in labels:
+    #     # Filter the DataFrame for each label
+    #     filtered_df= df.filter(lambda x: x['label'] == label)
+    #     if len(filtered_df) > 0:
+    #         row = filtered_df[0]
+    #         #print("First row:", row)
+    #         # Create the string for this example
+    #         example_str = f"[premise]: {row['premise']} | [hypothesis]: {row['hypothesis']} | [label]: {row['label']} \n\n"
+    #         verbalizer+= example_str
 
     return verbalizer
 
 def make_three_shot_prompt(verbalizer: str, premise: str, hypothesis:str) -> str:
     """Given a verbalizer, a premise, and a hypothesis, return the prompt."""
-    return f'{verbalizer}. Using these examples above, determine the label for : \n \n [premise]: {premise} \n\n [hypothesis]: {hypothesis} \n\n What is the [label]? Generate the numerical label value only. '
+    return f'{verbalizer}. Using the examples above, determine the label for : \n \n [premise]: {premise} \n\n [hypothesis]: {hypothesis} \n\n What is the [label]? Generate the numerical label value only. '
 
 def predict_labels(prompts: list[str]):
     """Should return a list of integer predictions (0, 1 or 2), one per prompt."""
