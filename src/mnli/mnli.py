@@ -27,8 +27,8 @@ def load_mnli_test() -> Dataset:
 def make_verbalizer(dev_ds:Dataset) -> str:
     """Should return a verbalizer string. You may choose to use examples from the dev set in the verbalizer."""
 
-    return ('Given below is a premise and hypothesis. Classify the label of the hypothesis with respect to the premise. '
-            'If the hypothesis contradicts the premise, output the label as 2. If the hypothesis is implied by the premise,'
+    return ('Given below is a [premise] and [hypothesis]. Classify the label of the [hypothesis] with respect to the [premise]. '
+            'If the [hypothesis] contradicts the [premise], output the label as 2. If the [hypothesis] is implied by the [premise],'
             ' output the label as 0. If it neither contradicts nor is implied, output the label as 1. ')
 
 def make_prompt(verbalizer: str, premise: str, hypothesis:str) -> str:
