@@ -5,6 +5,8 @@ This is an example code. Feel free to modify it when needed.
 import argparse
 import json
 from typing import List, Union, Dict
+
+import requests
 from tqdm import tqdm
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -69,6 +71,46 @@ def load_model_and_generate_output(data: [str]) -> [str]:
 
 
     return generate_output_list(model, tokenizer, messages, 'instruct', device)
+
+def hit_vllm_model_and_generate_output(data: [str]) -> [str]:
+    messages = convert_prompt_to_input(data)
+    print(f'messages: {messages}')
+
+    # Define the server URL
+    url = "http://localhost:8000/v1/chat/completions"
+    # Prepare headers for the request
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    outputs = [str]
+    for message in tqdm(messages):
+        # Prepare the data payload with the current content
+        data = {
+            "model": "allenai/OLMo-7B-Instruct-hf",
+            "messages": [
+                {"role": "user", "content": message}
+            ]
+        }
+
+        # Make the POST request
+        response = requests.post(url, headers=headers, data=json.dumps(data))
+
+        # Check if the request was successful
+        if response.status_code == 200:
+            result = response.json()  # Parse the JSON response
+            outputs.append(result)  # Add the result to the outputs list
+            print("Response:", result)  # Print the result
+
+            outputs.append(result)
+
+        else:
+            print(f"Failed to get response for content: '{message}'")
+            print("Status Code:", response.status_code)
+            print("Response:", response.text)
+
+
+    return outputs
 
 
 def prepare_messages(file_path: str, model_type: str) -> List[Union[str, Dict[str, str]]]:

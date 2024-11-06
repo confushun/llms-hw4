@@ -3,7 +3,7 @@ from datasets import load_dataset, Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from typing import Any
 
-from olmo.inference import load_model_and_generate_output
+from olmo.inference import load_model_and_generate_output,hit_vllm_model_and_generate_output
 
 
 def load_mnli_train() -> Dataset:
@@ -29,11 +29,11 @@ def make_verbalizer(dev_ds:Dataset) -> str:
 
     return ('Given below is a premise and hypothesis. Classify the label of the hypothesis with respect to the premise. '
             'If the hypothesis contradicts the premise, output the label as 2. If the hypothesis is implied by the premise,'
-            ' output the label as 0. If it neither contradicts nor is implied, output the label as 1. Only give me the label number, do not provide any other explanation. Generate only 0,1 or 2 as the output based on the hypothesis and premise.')
+            ' output the label as 0. If it neither contradicts nor is implied, output the label as 1. ')
 
 def make_prompt(verbalizer: str, premise: str, hypothesis:str) -> str:
     """Given a verbalizer, a premise, and a hypothesis, return the prompt."""
-    return f'{verbalizer}. \n \n premise: {premise} \n\n hypothesis: {hypothesis} \n\n label:'
+    return f'{verbalizer}. \n \n premise: {premise} \n\n hypothesis: {hypothesis} \n\n explanation: [] \n\n label: [0 | 1 | 2]'
 
 def predict_labels(prompts: list[str]):
     """Should return a list of integer predictions (0, 1 or 2), one per prompt."""
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     #print(f'prompts: {prompts}')
 
     # generate outputs
-    outputs= load_model_and_generate_output(prompts)
+    outputs= hit_vllm_model_and_generate_output(prompts)
     print(f'outputs: {outputs}')
 
     # fetch their labels
