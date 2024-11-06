@@ -39,13 +39,17 @@ def predict_labels(prompts: list[str]):
     """Should return a list of integer predictions (0, 1 or 2), one per prompt."""
     
     results = []
+    invalid_labels = 0
     for prompt in prompts:
         try:
             label = prompt.replace(" ", "").replace(".", "")
             results.append(int(label))
         except:
+            invalid_labels += 1
             print(f'{prompt} is not a valid label')
             results.append(-1)
+
+    print(f'invalid labels: {invalid_labels}')
 
     return results
 
