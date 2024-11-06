@@ -49,8 +49,10 @@ def make_three_shot_verbalizer(df:Dataset) -> str:
     labels = [0,1,2]
     for label in labels:
         # Filter the DataFrame for each label
-        row = df[df['label'] == label].iloc[0]  # Get the first row with each label
-        if not row.empty:
+        filtered_df= df.filter(lambda x: x['label'] == labels)
+        if len(filtered_df) > 0:
+            row = filtered_df[0]
+            print("First row:", row)
             # Create the string for this example
             example_str = f"[premise]: {row['premise']} | [hypothesis]: {row['hypothesis']} | [label]: {row['label']} \n\n"
             verbalizer+= example_str
