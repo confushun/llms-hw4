@@ -31,8 +31,8 @@ def generate_output_list(
         messages: List[Union[str, Dict[str, str]]],
         model_type: str,
         device: str
-) -> [str]:
-    outputs=[str]
+) -> []:
+    outputs=[]
     for message in tqdm(messages):
         prompt = message if isinstance(message, str) else message["content"]
 
@@ -57,7 +57,7 @@ def generate_output_list(
     return outputs
 
 
-def load_model_and_generate_output(data: [str]) -> [str]:
+def load_model_and_generate_output(data: []) -> []:
     messages = convert_prompt_to_input(data)
     print(f'messages: {messages}')
 
@@ -72,7 +72,7 @@ def load_model_and_generate_output(data: [str]) -> [str]:
 
     return generate_output_list(model, tokenizer, messages, 'instruct', device)
 
-def hit_vllm_model_and_generate_output(data: [str]) -> [str]:
+def hit_vllm_model_and_generate_output(data: []) -> []:
     messages = convert_prompt_to_input(data)
     #print(f'messages: {messages}')
 
@@ -83,7 +83,7 @@ def hit_vllm_model_and_generate_output(data: [str]) -> [str]:
         "Content-Type": "application/json"
     }
 
-    outputs = [str]
+    outputs = []
     for message in tqdm(messages):
         # Prepare the data payload with the current content
         data = {
