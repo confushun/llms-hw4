@@ -19,7 +19,7 @@ MODEL_MAP = {
 
 
 def convert_prompt_to_input(data: []) -> List[Union[str, Dict[str, str]]]:
-    return [{"role": "user", "content": item["prompt"]} for item in data]
+    return [{"role": "user", "content": item} for item in data]
 
 
 @torch.inference_mode()
@@ -56,6 +56,9 @@ def generate_output_list(
 
 
 def load_model_and_generate_output(data: [str]) -> [str]:
+    messages = convert_prompt_to_input(data)
+    print(f'messages: {messages}')
+
     device = determine_device()
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_MAP['instruct'],
@@ -64,7 +67,7 @@ def load_model_and_generate_output(data: [str]) -> [str]:
     model.eval()
     tokenizer = AutoTokenizer.from_pretrained(MODEL_MAP['instruct'])
 
-    messages = convert_prompt_to_input(data)
+
     return generate_output_list(model, tokenizer, messages, 'instruct', device)
 
 
