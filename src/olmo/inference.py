@@ -89,7 +89,7 @@ def hit_vllm_model_and_generate_output(data: [str]) -> [str]:
         data = {
             "model": "allenai/OLMo-7B-Instruct-hf",
             "messages": [
-                {"role": "user", "content": "hello!"}
+               message
             ]
         }
 
