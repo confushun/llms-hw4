@@ -96,14 +96,14 @@ if __name__ == "__main__":
     train_ds = load_mnli_train()
     dev_ds = load_mnli_dev()
     test_ds = load_mnli_test()
-    verbalizer = make_three_shot_verbalizer(train_ds)
+    verbalizer = make_zero_shot_verbalizer(train_ds)
 
     prompts = []
     true_labels = []
 
     # make input prompts
     for ex in test_ds:
-      prompt = make_three_shot_prompt(verbalizer, ex["premise"], ex["hypothesis"])
+      prompt = make_zero_shot_prompt(verbalizer, ex["premise"], ex["hypothesis"])
       prompts.append(prompt)
       true_labels.append(ex["label"])
       # break
