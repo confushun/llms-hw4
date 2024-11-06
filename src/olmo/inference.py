@@ -104,11 +104,9 @@ def hit_vllm_model_and_generate_output(data: [str]) -> [str]:
         if response.status_code == 200:
             result = response.json()  # Parse the JSON response
             print(f'result: {result}')
-
-            message_str = result['message']
-            content = message_str['content']
+            # Extract the 'content' value
+            content = result['choices'][0]['message']['content']
             print(f'content: {content}\n\n')
-
             outputs.append(content)  # Add the result to the outputs list
 
         else:
