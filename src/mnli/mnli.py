@@ -97,7 +97,7 @@ if __name__ == "__main__":
       prompt = make_three_shot_prompt(verbalizer, ex["premise"], ex["hypothesis"])
       prompts.append(prompt)
       true_labels.append(ex["label"])
-      break
+      # break
 
     #print(f'prompts: {prompts}')
 
