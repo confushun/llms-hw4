@@ -29,7 +29,7 @@ def make_verbalizer(dev_ds:Dataset) -> str:
 
     return ('Given below is a premise and hypothesis. Classify the label of the hypothesis with respect to the premise. '
             'If the hypothesis contradicts the premise, output the label as 2. If the hypothesis is implied by the premise,'
-            ' output the label as 0. If it neither contradicts nor is implied, output the label as 1.')
+            ' output the label as 0. If it neither contradicts nor is implied, output the label as 1. Only give me the label number, do not provide any other explanation. Generate only 0,1 or 2 as the output based on the hypothesis and premise.')
 
 def make_prompt(verbalizer: str, premise: str, hypothesis:str) -> str:
     """Given a verbalizer, a premise, and a hypothesis, return the prompt."""
@@ -74,7 +74,7 @@ if __name__ == "__main__":
       prompts.append(prompt)
       true_labels.append(ex["label"])
 
-    print(f'prompts: {prompts}')
+    #print(f'prompts: {prompts}')
 
     # generate outputs
     outputs= load_model_and_generate_output(prompts)
@@ -83,6 +83,7 @@ if __name__ == "__main__":
     # fetch their labels
     predicted_labels = predict_labels(outputs)
     print(f'predicted labels: {predicted_labels}')
+    print(f'true labels: {true_labels}')
 
     num_correct = sum(true == pred for true, pred in zip(true_labels, predicted_labels))
     accuracy = num_correct / len(true_labels)
