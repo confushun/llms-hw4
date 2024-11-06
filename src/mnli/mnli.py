@@ -2,7 +2,7 @@
 from datasets import load_dataset, Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from typing import Any
-
+import re
 from olmo.inference import load_model_and_generate_output,hit_vllm_model_and_generate_output
 
 
@@ -44,15 +44,8 @@ def predict_labels(prompts: list[str]):
     for prompt in prompts:
         try:
             #label = prompt.replace(" ", "").replace(".", "")
-
-            number = ''
-            for char in prompt:
-                if char.isdigit():
-                    number += char
-                elif number:  # Stop once we have found the first number
-                    break
-
-            results.append(int(number))
+            match = re.search(r'\d+', prompt)
+            results.append(int(match.group()))
         except:
             invalid_labels += 1
             print(f'{prompt} is not a valid label')
