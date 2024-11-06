@@ -103,8 +103,10 @@ def hit_vllm_model_and_generate_output(data: [str]) -> [str]:
         # Check if the request was successful
         if response.status_code == 200:
             result = response.json()  # Parse the JSON response
-            message = result['message']
-            content = message['content']
+            print(f'result: {result}')
+
+            message_str = result['message']
+            content = message_str['content']
             print(f'content: {content}\n\n')
 
             outputs.append(content)  # Add the result to the outputs list
