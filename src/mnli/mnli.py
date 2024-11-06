@@ -43,8 +43,16 @@ def predict_labels(prompts: list[str]):
     invalid_labels = 0
     for prompt in prompts:
         try:
-            label = prompt.replace(" ", "").replace(".", "")
-            results.append(int(label))
+            #label = prompt.replace(" ", "").replace(".", "")
+
+            number = ''
+            for char in prompt:
+                if char.isdigit():
+                    number += char
+                elif number:  # Stop once we have found the first number
+                    break
+
+            results.append(int(number))
         except:
             invalid_labels += 1
             print(f'{prompt} is not a valid label')
