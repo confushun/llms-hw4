@@ -49,7 +49,7 @@ def make_three_shot_verbalizer(df:Dataset) -> str:
     first_three_rows = df[:3]
     print(f'first_three_rows: {first_three_rows}')
 
-    for i in range(len(first_three_rows)):
+    for i in range(len(first_three_rows)-1):
         print(f'i: {i}')
         example_str = f"[premise]: {first_three_rows['premise'][i]} | [hypothesis]: {first_three_rows['hypothesis'][i]} | [label]: {first_three_rows['label'][i]} \n\n"
         verbalizer += example_str
