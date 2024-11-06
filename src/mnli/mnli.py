@@ -46,7 +46,8 @@ def make_three_shot_verbalizer(df:Dataset) -> str:
             'Here are some examples:')
 
     # append examples
-    first_three_rows = df[:3]
+    #first_three_rows = df[:3]
+    first_three_rows = df.shuffle(seed=42)[:3]
     print(f'first_three_rows: {first_three_rows}')
 
     for i in range(2):
