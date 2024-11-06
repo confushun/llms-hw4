@@ -93,17 +93,17 @@ def hit_vllm_model_and_generate_output(data: [str]) -> [str]:
             ]
         }
 
-        print(f'data: {data} \n\n')
+       #print(f'data: {data} \n\n')
 
         # Make the POST request
         response = requests.post(url, headers=headers, data=json.dumps(data))
 
-        print(f'response: {response} \n\n')
+        #print(f'response: {response} \n\n')
 
         # Check if the request was successful
         if response.status_code == 200:
             result = response.json()  # Parse the JSON response
-            print(f'result: {result}')
+            #print(f'result: {result}')
             # Extract the 'content' value
             content = result['choices'][0]['message']['content']
             print(f'content: {content}\n\n')
@@ -114,7 +114,7 @@ def hit_vllm_model_and_generate_output(data: [str]) -> [str]:
             print("Status Code:", response.status_code)
             print("Response:", response.text)
 
-        break
+        #break
 
 
     return outputs
