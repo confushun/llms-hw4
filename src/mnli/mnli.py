@@ -43,6 +43,7 @@ def predict_labels(prompts: list[str]):
     invalid_labels = 0
     for prompt in prompts:
         try:
+            print(f'prompt: {prompt}')
             #label = prompt.replace(" ", "").replace(".", "")
             match = re.search(r'\d+', prompt)
             results.append(int(match.group()))
