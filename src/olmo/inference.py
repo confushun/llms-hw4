@@ -18,6 +18,56 @@ MODEL_MAP = {
 }
 
 
+def convert_prompt_to_input(data: []) -> List[Union[str, Dict[str, str]]]:
+    return [{"role": "user", "content": item["prompt"]} for item in data]
+
+
+@torch.inference_mode()
+def generate_output_list(
+        model: AutoModelForCausalLM,
+        tokenizer: AutoTokenizer,
+        messages: List[Union[str, Dict[str, str]]],
+        model_type: str,
+        device: str
+) -> [str]:
+    outputs=[str]
+    for message in tqdm(messages):
+        prompt = message if isinstance(message, str) else message["content"]
+
+        if model_type == "pretrained":
+            inputs = tokenizer(prompt, return_tensors='pt', return_token_type_ids=False)
+        else:
+            inputs = tokenizer.apply_chat_template([message], tokenize=True, add_generation_prompt=True,
+                                                   return_tensors="pt")
+
+        if model_type != "pretrained" and not isinstance(inputs, dict):
+            inputs = {'input_ids': inputs}
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+
+        response = model.generate(**inputs, max_new_tokens=300)
+        response_decoded = tokenizer.batch_decode(response, skip_special_tokens=True)[0]
+
+        if model_type != "pretrained":
+            response_decoded = response_decoded.split("\n<|assistant|>\n")[-1]
+
+        outputs.append(response_decoded)
+
+    return outputs
+
+
+def load_model_and_generate_output(data: [str]) -> [str]:
+    device = determine_device()
+    model = AutoModelForCausalLM.from_pretrained(
+        MODEL_MAP['instruct'],
+        torch_dtype="float16"  # we need half-precision to fit into our machine
+    ).to(device)
+    model.eval()
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_MAP['instruct'])
+
+    messages = convert_prompt_to_input(data)
+    return generate_output_list(model, tokenizer, messages, 'instruct', device)
+
+
 def prepare_messages(file_path: str, model_type: str) -> List[Union[str, Dict[str, str]]]:
     with open(file_path, "r") as f:
         data = [json.loads(line) for line in f]
@@ -29,7 +79,7 @@ def prepare_messages(file_path: str, model_type: str) -> List[Union[str, Dict[st
 
 
 @torch.inference_mode()
-def generate_output(
+def generate_output_to_file(
     model: AutoModelForCausalLM,
     tokenizer: AutoTokenizer,
     messages: List[Union[str, Dict[str, str]]],
@@ -92,10 +142,9 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_MAP[args.model_type])
 
     messages = prepare_messages(args.prompts, args.model_type)
-    generate_output(model, tokenizer, messages, args.output, args.model_type, device)
+    generate_output_to_file(model, tokenizer, messages, args.output, args.model_type, device)
 
     print("Done!")
-
 
 if __name__ == "__main__":
     main()
