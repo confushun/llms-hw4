@@ -24,7 +24,7 @@ def load_mnli_test() -> Dataset:
     ds = load_dataset("facebook/anli", split="test_r3").shuffle().take(100)
     return ds
 
-def make_verbalizer(dev_ds:Dataset) -> str:
+def make_zero_shot_verbalizer(dev_ds:Dataset) -> str:
     """Should return a verbalizer string. You may choose to use examples from the dev set in the verbalizer."""
 
     return ('In the following statements, decide the relationship between the [premise] and [hypothesis]. '
@@ -32,9 +32,31 @@ def make_verbalizer(dev_ds:Dataset) -> str:
             'If the [hypothesis] is definitely false based on the [premise], the [label] is 2 (contradiction).'
             'If the [hypothesis] is possible but not certain based on the [premise], the [label] is 1 (neutral).')
 
-def make_prompt(verbalizer: str, premise: str, hypothesis:str) -> str:
+def make_zero_shot_prompt(verbalizer: str, premise: str, hypothesis:str) -> str:
     """Given a verbalizer, a premise, and a hypothesis, return the prompt."""
     return f'{verbalizer}. Example: \n \n [premise]: {premise} \n\n [hypothesis]: {hypothesis} \n\n What is the [label]? Generate the numerical label value only. '
+
+def make_three_shot_verbalizer(df:Dataset) -> str:
+    """Should return a verbalizer string. You may choose to use examples from the dev set in the verbalizer."""
+
+    verbalizer =  ('In the following statements, decide the relationship between the [premise] and [hypothesis]. '
+            'If the [hypothesis] is definitely true based on the [premise], the [label] is 0 (neutral).'
+            'If the [hypothesis] is definitely false based on the [premise], the [label] is 2 (contradiction).'
+            'If the [hypothesis] is possible but not certain based on the [premise], the [label] is 1 (neutral).'
+            'Here are some examples:')
+
+    # append examples
+    for label in [0, 1, 2]:
+        # Filter the DataFrame for each label
+        row = df[df['label'] == label].iloc[0]  # Get the first row with each label
+        if not row.empty:
+            # Create the string for this example
+            example_str = f"[premise]: {row['premise']} | [hypothesis]: {row['hypothesis']} | [label]: {row['label']} \n\n"
+            verbalizer+= example_str
+
+def make_three_shot_prompt(verbalizer: str, premise: str, hypothesis:str) -> str:
+    """Given a verbalizer, a premise, and a hypothesis, return the prompt."""
+    return f'{verbalizer}. Using these examples above, determine the label for : \n \n [premise]: {premise} \n\n [hypothesis]: {hypothesis} \n\n What is the [label]? Generate the numerical label value only. '
 
 def predict_labels(prompts: list[str]):
     """Should return a list of integer predictions (0, 1 or 2), one per prompt."""
@@ -56,32 +78,21 @@ def predict_labels(prompts: list[str]):
 
     return results
 
-# input message -> change to user, content json format --> apply chat template ---> send it to the model
-# ---> model output
-# model
-
-
-# here:
-# prompt
-# add verbalizer + prompt + label?
-# send this to the model as input msg
-# follow same as above
-# change output to the numerical label
-
 if __name__ == "__main__":
     train_ds = load_mnli_train()
     dev_ds = load_mnli_dev()
     test_ds = load_mnli_test()
-    verbalizer = make_verbalizer(train_ds)
+    verbalizer = make_three_shot_verbalizer(train_ds)
 
     prompts = []
     true_labels = []
 
     # make input prompts
     for ex in dev_ds:
-      prompt = make_prompt(verbalizer, ex["premise"], ex["hypothesis"])
+      prompt = make_three_shot_prompt(verbalizer, ex["premise"], ex["hypothesis"])
       prompts.append(prompt)
       true_labels.append(ex["label"])
+      break
 
     #print(f'prompts: {prompts}')
 
