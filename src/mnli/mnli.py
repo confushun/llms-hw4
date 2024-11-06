@@ -41,7 +41,8 @@ def predict_labels(prompts: list[str]):
     results = []
     for prompt in prompts:
         try:
-            results.append(int(prompt))
+            label = prompt.replace(" ", "").replace(".", "")
+            results.append(int(label))
         except:
             print(f'{prompt} is not a valid label')
 
